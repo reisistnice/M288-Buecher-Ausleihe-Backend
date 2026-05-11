@@ -37,7 +37,7 @@ public class LoanRepository : ILoanRepository
         if (loan is null || loan.ReturnDate.HasValue) return null;
 
         loan.ReturnDate = DateTime.UtcNow;
-        loan.Book.IsAvailable = true;
+        loan.Book.AvailableCopies++;
         await _context.SaveChangesAsync();
         return loan;
     }

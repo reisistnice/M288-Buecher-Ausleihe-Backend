@@ -22,7 +22,14 @@ public class UserRepository : IUserRepository
     {
         var user = new User { Username = username, PasswordHash = passwordHash, Role = role };
         _context.Users.Add(user);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
+            return null;
+        }
         return user;
     }
 }

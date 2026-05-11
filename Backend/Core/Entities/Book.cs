@@ -6,6 +6,8 @@ public class Book
     public string Title { get; set; } = string.Empty;
     public string Author { get; set; } = string.Empty;
     public string ISBN { get; set; } = string.Empty;
-    public bool IsAvailable { get; set; } = true;
+    public int TotalCopies { get; set; } = 1;
+    public int AvailableCopies { get; set; } = 1;
+    public bool IsAvailable => AvailableCopies > 0;
     public ICollection<Loan> Loans { get; set; } = new List<Loan>();
 }

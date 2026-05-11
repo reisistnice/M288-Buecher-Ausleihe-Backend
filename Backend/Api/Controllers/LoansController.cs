@@ -42,10 +42,10 @@ public class LoansController : ControllerBase
     {
         var book = await _bookRepository.GetByIdAsync(dto.BookId);
         if (book is null) return NotFound("Book not found.");
-        if (!book.IsAvailable) return Conflict("Book is not available.");
+        if (book.AvailableCopies <= 0) return Conflict("Book is not available.");
 
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.SerialNumber)!);
-        book.IsAvailable = false;
+        book.AvailableCopies--;
         await _bookRepository.UpdateAsync(book);
 
         var loan = new Loan { BookId = dto.BookId, UserId = userId };
