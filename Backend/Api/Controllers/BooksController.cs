@@ -23,7 +23,7 @@ public class BooksController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var books = await _bookRepository.GetAllAsync();
-        var dtos = books.Select(b => new BookDto(b.Id, b.Title, b.Author, b.ISBN, b.IsAvailable));
+        var dtos = books.Select(b => new BookDto(b.Id, b.Title, b.Author, b.ISBN, b.TotalCopies, b.AvailableCopies));
         return Ok(dtos);
     }
 
@@ -32,17 +32,17 @@ public class BooksController : ControllerBase
     {
         var book = await _bookRepository.GetByIdAsync(id);
         if (book is null) return NotFound();
-        return Ok(new BookDto(book.Id, book.Title, book.Author, book.ISBN, book.IsAvailable));
+        return Ok(new BookDto(book.Id, book.Title, book.Author, book.ISBN, book.TotalCopies, book.AvailableCopies));
     }
 
     [HttpPost]
     [Authorize(Roles = "Administrators")]
     public async Task<IActionResult> Create([FromBody] CreateBookDto dto)
     {
-        var book = new Book { Title = dto.Title, Author = dto.Author, ISBN = dto.ISBN };
+        var book = new Book { Title = dto.Title, Author = dto.Author, ISBN = dto.ISBN, TotalCopies = dto.TotalCopies, AvailableCopies = dto.TotalCopies };
         var created = await _bookRepository.CreateAsync(book);
         return CreatedAtAction(nameof(GetById), new { id = created.Id },
-            new BookDto(created.Id, created.Title, created.Author, created.ISBN, created.IsAvailable));
+            new BookDto(created.Id, created.Title, created.Author, created.ISBN, created.TotalCopies, created.AvailableCopies));
     }
 
     [HttpDelete("{id}")]
