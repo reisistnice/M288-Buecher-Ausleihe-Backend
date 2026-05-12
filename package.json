@@ -1,0 +1,22 @@
+{
+  "name": "buecher-ausleihe-tests",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "jest --runInBand --testTimeout=30000",
+    "test:verbose": "jest --runInBand --verbose --testTimeout=30000",
+    "verify:db": "ts-node __tests__/loadtest/verify_db.ts"
+  },
+  "dependencies": {
+    "axios": "^1.7.0",
+    "mssql": "^11.0.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/mssql": "^9.1.5",
+    "@types/node": "^20.14.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}

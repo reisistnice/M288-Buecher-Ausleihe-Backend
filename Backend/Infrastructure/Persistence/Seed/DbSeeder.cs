@@ -16,17 +16,24 @@ public class DbSeeder : IDbSeeder
 
     public async Task SeedAsync()
     {
-        if (!_context.Users.Any())
+        if (!_context.Users.Any(u => u.Username == "admin"))
         {
             _context.Users.Add(new User
             {
                 Username = "admin",
+                Email = "admin@buecherausleihe.local",
                 PasswordHash = _passwordHasher.Hash("Admin1234!"),
                 Role = UserRole.Administrators
             });
+            await _context.SaveChangesAsync();
+        }
+
+        if (!_context.Users.Any(u => u.Username == "user"))
+        {
             _context.Users.Add(new User
             {
                 Username = "user",
+                Email = "user@buecherausleihe.local",
                 PasswordHash = _passwordHasher.Hash("User1234!"),
                 Role = UserRole.Users
             });

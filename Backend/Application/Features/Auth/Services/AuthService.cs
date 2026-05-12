@@ -25,17 +25,19 @@ public class AuthService
         return new TokenResponseDto(_jwt.GenerateToken(user));
     }
 
-    public async Task<TokenResponseDto?> RegisterUser(string username, string password)
+    public async Task<(TokenResponseDto? Token, string? Error)> RegisterUser(string email, string username, string password)
     {
-        var existing = await _userRepository.GetUserByNameAsync(username);
-        if (existing is not null)
-            return null;
+        if (await _userRepository.GetUserByEmailAsync(email) is not null)
+            return (null, "Email already taken.");
+
+        if (await _userRepository.GetUserByNameAsync(username) is not null)
+            return (null, "Username already taken.");
 
         var hash = _passwordHasher.Hash(password);
-        var user = await _userRepository.CreateUserAsync(username, hash, Core.Entities.UserRole.Users);
+        var user = await _userRepository.CreateUserAsync(email, username, hash, Core.Entities.UserRole.Users);
         if (user is null)
-            return null;
+            return (null, "Registration failed.");
 
-        return new TokenResponseDto(_jwt.GenerateToken(user));
+        return (new TokenResponseDto(_jwt.GenerateToken(user)), null);
     }
 }

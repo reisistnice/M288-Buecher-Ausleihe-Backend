@@ -9,4 +9,5 @@ public interface ILoanRepository
     Task<Loan?> GetByIdAsync(int id);
     Task<Loan> CreateAsync(Loan loan);
     Task<Loan?> ReturnAsync(int loanId);
+    Task<(Loan? Loan, string? Error)> BorrowAsync(int bookId, int userId);
 }

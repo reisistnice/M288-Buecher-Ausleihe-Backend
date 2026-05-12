@@ -18,9 +18,14 @@ public class UserRepository : IUserRepository
         return await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
     }
 
-    public async Task<User?> CreateUserAsync(string username, string passwordHash, UserRole role)
+    public async Task<User?> GetUserByEmailAsync(string email)
     {
-        var user = new User { Username = username, PasswordHash = passwordHash, Role = role };
+        return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+    }
+
+    public async Task<User?> CreateUserAsync(string email, string username, string passwordHash, UserRole role)
+    {
+        var user = new User { Email = email, Username = username, PasswordHash = passwordHash, Role = role };
         _context.Users.Add(user);
         try
         {

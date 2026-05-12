@@ -13,12 +13,10 @@ namespace Api.Controllers;
 public class LoansController : ControllerBase
 {
     private readonly ILoanRepository _loanRepository;
-    private readonly IBookRepository _bookRepository;
 
-    public LoansController(ILoanRepository loanRepository, IBookRepository bookRepository)
+    public LoansController(ILoanRepository loanRepository)
     {
         _loanRepository = loanRepository;
-        _bookRepository = bookRepository;
     }
 
     [HttpGet]
@@ -40,18 +38,20 @@ public class LoansController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateLoanDto dto)
     {
-        var book = await _bookRepository.GetByIdAsync(dto.BookId);
-        if (book is null) return NotFound("Book not found.");
-        if (book.AvailableCopies <= 0) return Conflict("Book is not available.");
-
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.SerialNumber)!);
-        book.AvailableCopies--;
-        await _bookRepository.UpdateAsync(book);
+        var (loan, error) = await _loanRepository.BorrowAsync(dto.BookId, userId);
 
-        var loan = new Loan { BookId = dto.BookId, UserId = userId };
-        var created = await _loanRepository.CreateAsync(loan);
-        var full = await _loanRepository.GetByIdAsync(created.Id);
-        return CreatedAtAction(nameof(GetAll), ToDto(full!));
+        if (loan is null)
+        {
+            return error switch
+            {
+                "BOOK_NOT_FOUND"          => NotFound(new { message = "Book not found." }),
+                "NO_COPIES_AVAILABLE"     => Conflict(new { message = "NO_COPIES_AVAILABLE" }),
+                _                         => StatusCode(503, new { message = "Service temporarily unavailable. Please retry." })
+            };
+        }
+
+        return CreatedAtAction(nameof(GetAll), ToDto(loan));
     }
 
     [HttpPut("{id}/return")]

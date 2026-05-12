@@ -13,11 +13,21 @@ public class BookRepository : IBookRepository
         _context = context;
     }
 
-    public async Task<List<Book>> GetAllAsync() =>
-        await _context.Books.ToListAsync();
+    public async Task<List<Book>> GetAllAsync()
+    {
+        var books = await _context.Books.Include(b => b.Loans).ToListAsync();
+        foreach (var b in books)
+            b.AvailableCopies = b.TotalCopies - b.Loans.Count(l => l.ReturnDate == null);
+        return books;
+    }
 
-    public async Task<Book?> GetByIdAsync(int id) =>
-        await _context.Books.FindAsync(id);
+    public async Task<Book?> GetByIdAsync(int id)
+    {
+        var book = await _context.Books.Include(b => b.Loans).FirstOrDefaultAsync(b => b.Id == id);
+        if (book is not null)
+            book.AvailableCopies = book.TotalCopies - book.Loans.Count(l => l.ReturnDate == null);
+        return book;
+    }
 
     public async Task<Book> CreateAsync(Book book)
     {

@@ -82,6 +82,25 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
             RoleClaimType = ClaimTypes.Role
         };
+        options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+        {
+            OnMessageReceived = ctx =>
+            {
+                var auth = ctx.Request.Headers.Authorization.FirstOrDefault();
+                Console.WriteLine($"[JWT] Authorization header: {(auth is null ? "MISSING" : auth)}");
+                return Task.CompletedTask;
+            },
+            OnAuthenticationFailed = ctx =>
+            {
+                Console.WriteLine($"[JWT] Authentication failed: {ctx.Exception.GetType().Name}: {ctx.Exception.Message}");
+                return Task.CompletedTask;
+            },
+            OnChallenge = ctx =>
+            {
+                Console.WriteLine($"[JWT] Challenge issued. Error: {ctx.Error}, Description: {ctx.ErrorDescription}");
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();

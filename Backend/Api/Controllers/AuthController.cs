@@ -28,9 +28,9 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> RegisterUser([FromBody] RegisterUserDto registerUserDto)
     {
-        var tokenResponse = await _authService.RegisterUser(registerUserDto.Username, registerUserDto.Password);
+        var (tokenResponse, error) = await _authService.RegisterUser(registerUserDto.Email, registerUserDto.Username, registerUserDto.Password);
         if (tokenResponse is null)
-            return Conflict(new { message = "Username already taken." });
+            return Conflict(new { message = error });
 
         return Ok(tokenResponse);
     }
