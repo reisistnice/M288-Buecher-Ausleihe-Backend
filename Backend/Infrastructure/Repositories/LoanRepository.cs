@@ -32,12 +32,12 @@ public class LoanRepository : ILoanRepository
         return loan;
     }
 
-    // ── 7c WITHOUT_TRANSACTION (race condition demo) ─────────────────────────
+    // ---- 7c WITHOUT_TRANSACTION (race condition demo) -------
     // Without SERIALIZABLE isolation, two concurrent BorrowAsync calls both read
     // activeLoans = 0, both pass the check (0 < 1 = TotalCopies), and both insert
     // a Loan row. Result: 2 active loans for a book with TotalCopies = 1.
     //
-    // Unprotected code (DO NOT USE IN PRODUCTION):
+    // Unprotected code:
     //
     //   var book = await _context.Books.FindAsync(bookId);
     //   if (book is null) return (null, "BOOK_NOT_FOUND");
@@ -53,7 +53,7 @@ public class LoanRepository : ILoanRepository
     //
     // With 10 concurrent requests and 1 copy, ALL requests can succeed —
     // active_loans goes to 10. The unit test catches this.
-    // ── END WITHOUT_TRANSACTION ───────────────────────────────────────────────
+    // ----- END WITHOUT_TRANSACTION --------------
     public async Task<(Loan? Loan, string? Error)> BorrowAsync(int bookId, int userId)
     {
         const int maxRetries = 3;
